@@ -881,16 +881,6 @@ function autoFTHOFComboAction() {
 	if (typeof autoFTHOFComboAction.state == 'undefined') {
 		autoFTHOFComboAction.state = 0;
 	}
-
-	if (autoFTHOFComboAction.state != 2) {
-		if ((nextSpellName(0) == "Click Frenzy" && nextSpellName(1) == "Building Special") || 
-		    (nextSpellName(1) == "Click Frenzy" && nextSpellName(0) == "Building Special") ||
-		    (nextSpellName(0) == "Click Frenzy" && nextSpellName(1) == "Elder Frenzy") || 		
-		    (nextSpellName(1) == "Click Frenzy" && nextSpellName(0) == "Elder Frenzy")) {
-			autoFTHOFComboAction.state = 1;
-		}
-		else { autoFTHOFComboAction.state = 0; }
-	}
 	
 	if (M.magic == M.magicM) {
 		var FTHOF = M.spellsById[1];
@@ -899,10 +889,18 @@ function autoFTHOFComboAction() {
 		switch (autoFTHOFComboAction.state)
 		{
 			case 0:
-				var hagC = M.spellsById[4];
-				M.castSpell(hagC);
-				logEvent('AutoSpell', 'Cast Haggler\'s Charm instead of Force the Hand of Fate');
-				return;
+                if ((nextSpellName(0) == "Click Frenzy" && nextSpellName(1) == "Building Special") || 
+                    (nextSpellName(1) == "Click Frenzy" && nextSpellName(0) == "Building Special") ||
+                    (nextSpellName(0) == "Click Frenzy" && nextSpellName(1) == "Elder Frenzy") || 		
+                    (nextSpellName(1) == "Click Frenzy" && nextSpellName(0) == "Elder Frenzy")) {
+                        autoFTHOFComboAction.state = 1;
+                }
+                else {
+                    var hagC = M.spellsById[4];
+                    M.castSpell(hagC);
+                    logEvent('AutoSpell', 'Cast Haggler\'s Charm instead of Force the Hand of Fate');
+                }
+				break;
 
 			case 1:
 				if (Game.hasBuff('Frenzy') && BuildingSpecialBuff() == 1 && Game.hasBuff('Frenzy').time / 30 >= Math.ceil(13 * BuffTimeFactor()) - 1 && BuildingBuffTime() >= Math.ceil(13 * BuffTimeFactor())) {
@@ -914,10 +912,11 @@ function autoFTHOFComboAction() {
 					}
 
 					FrozenCookies.autoBuy = 0;
-					switch (SugarLevel)
+                    
+                    switch (SugarLevel)
 					{
 						case 0:
-							return;
+							break;
 
 						case 1:							
 							if (Game.Objects['Wizard tower'].amount >= 316) {
@@ -928,7 +927,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}
-							return;
+							break;
 
 						case 2:						
 							if (Game.Objects['Wizard tower'].amount >= 312) {
@@ -939,7 +938,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 3:							
 							if (Game.Objects['Wizard tower'].amount >= 308) {
@@ -950,7 +949,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 4:						
 							if (Game.Objects['Wizard tower'].amount >= 304) {
@@ -961,7 +960,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 5:							
 							if (Game.Objects['Wizard tower'].amount >= 309) {
@@ -983,7 +982,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 7:							
 							if (Game.Objects['Wizard tower'].amount >= 445) {
@@ -995,7 +994,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 8:							
 							if (Game.Objects['Wizard tower'].amount >= 506) {
@@ -1006,7 +1005,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 9:
 							if (Game.Objects['Wizard tower'].amount >= 530) {
@@ -1017,7 +1016,7 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+							break;
 							
 						case 10:
 							if (Game.Objects['Wizard tower'].amount >= 598) {
@@ -1027,11 +1026,14 @@ function autoFTHOFComboAction() {
 								
 								autoFTHOFComboAction.state = 2;
 							}	
-							return;
+                            break;
+                            
+                        default:
+                            break;
 							
 					}
 				}
-				return;
+				break;
 				
 			case 2:
 				M.castSpell(FTHOF);
@@ -1044,8 +1046,10 @@ function autoFTHOFComboAction() {
 				if (autoFTHOFComboAction.autobuyyes == 1) {
 					FrozenCookies.autoBuy = 1;
 				}
-				
-				return;	
+                break;	
+                
+            default:
+                break;
 		}
 	}
 }
