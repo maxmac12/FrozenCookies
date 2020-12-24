@@ -1068,15 +1068,7 @@ function autoFarmLumpsAction()
 
     if (typeof autoFarmLumpsAction.prevAutoGC == 'undefined') {
         autoFarmLumpsAction.prevAutoGC = FrozenCookies.autoGC;
-    }
-
-    if (typeof autoFarmLumpsAction.delay == 'undefined') {
-        autoFarmLumpsAction.delay = 0;
-    }  
-
-    if (typeof autoFarmLumpsAction.ascensionCount == 'undefined') {
-        autoFarmLumpsAction.ascensionCount = 0;
-    }  
+    } 
     
     // DEBUG FOR STATE MACHINE
     // if (typeof autoFarmLumpsAction.prevState == 'undefined') {
@@ -1100,6 +1092,10 @@ function autoFarmLumpsAction()
                 {
                     // Grimoire is unlocked. Begin checking FTHOF spells for a sugar lump.
                     autoFarmLumpsAction.state = 'checkspells';
+
+                    // Limit the number of wizard towers to the minimum mana needed to cast FTHOF.
+                    FrozenCookies.towerLimit = 1;
+                    FrozenCookies.manaMax = 23;
                 }
                 break;
 
