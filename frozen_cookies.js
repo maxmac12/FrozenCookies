@@ -2,16 +2,14 @@
 var scriptElement = document.getElementById('frozenCookieScript') !== null ?
     document.getElementById('frozenCookieScript') :
     document.getElementById('modscript_frozen_cookies');
-var baseUrl = "."
-// var baseUrl = scriptElement !== null ?
-//     scriptElement.getAttribute('src').replace(/\/frozen_cookies\.js$/, '') :
-//     'https://darkroman.github.io/FrozenCookies/';
+var baseUrl = scriptElement !== null ?
+    scriptElement.getAttribute('src').replace(/\/frozen_cookies\.js$/, '') :
+    'https://maxmac12.github.io/FrozenCookies/';
 var FrozenCookies = {
     'baseUrl': baseUrl,
     'branch': '',
     'version': '1.9.0'
 };
-
 
 // Load external libraries
 var script_list = [
@@ -27,11 +25,11 @@ var script_list = [
     'https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.trendline.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.highlighter.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.logAxisRenderer.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.cursor.min.js'
-    // FrozenCookies.baseUrl + '/cc_upgrade_prerequisites.js',
-    // FrozenCookies.baseUrl + '/fc_main.js',
-    // FrozenCookies.baseUrl + '/fc_button.js',
-    // FrozenCookies.baseUrl + '/fc_spellpredict.js'
+    'https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.cursor.min.js',
+    FrozenCookies.baseUrl + '/cc_upgrade_prerequisites.js',
+    FrozenCookies.baseUrl + '/fc_main.js',
+    FrozenCookies.baseUrl + '/fc_button.js',
+    FrozenCookies.baseUrl + '/fc_spellpredict.js'
 ]
 
 FrozenCookies.loadInterval = setInterval(function() {
@@ -74,20 +72,4 @@ function fcInit() {
         loadScript(0);
     };
     document.head.appendChild(jquery);
-
-    var sc = document.createElement("script");
-    sc.setAttribute("src", "../frozencookies/cc_upgrade_prerequisites.js");
-    document.head.appendChild(sc);
-
-    sc = document.createElement("script");
-    sc.setAttribute("src", "../frozencookies/fc_main.js");
-    document.head.appendChild(sc);
-
-    sc = document.createElement("script");
-    sc.setAttribute("src", "../frozencookies/fc_button.js");
-    document.head.appendChild(sc);
-
-    sc = document.createElement("script");
-    sc.setAttribute("src", "../frozencookies/fc_spellpredict.js");
-    document.head.appendChild(sc);
 }
