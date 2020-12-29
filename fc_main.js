@@ -895,6 +895,10 @@ function autoFTHOFComboAction() {
                     (nextSpellName(1) == "Click Frenzy" && nextSpellName(0) == "Elder Frenzy")) {
                         autoFTHOFComboAction.state = 1;
                 }
+                else if (nextSpellName(0) == "Sugar Lump") {
+                    M.castSpell(FTHOF);
+                    logEvent('AutoSpell', 'Cast Force the Hand of Fate for Sugar Lump');
+                }
                 else {
                     var hagC = M.spellsById[4];
                     M.castSpell(hagC);
@@ -1046,7 +1050,7 @@ function autoFTHOFComboAction() {
 				if (autoFTHOFComboAction.autobuyyes == 1) {
 					FrozenCookies.autoBuy = 1;
 				}
-                break;	
+                break;
                 
             default:
                 break;
