@@ -1194,7 +1194,6 @@ function autoFarmLumpsAction()
                 break;
 
             case 'ascend':  // Ascend to look for another sugar lump.
-                logEvent('AutoFarm', 'Ascending');
                 Game.Ascend(1);                        
                 Game.AscendTimer = Game.AscendDuration;  // Bypass ascension animation.
                 Game.OnAscend = 1;
