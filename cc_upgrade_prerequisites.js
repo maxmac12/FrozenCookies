@@ -184,9 +184,10 @@ FrozenCookies.preferenceValues = {
         'default':0
     },
     'autoFarmLumps':{
-        'hint':'Ascend until a \'sweet\' golden cookie is found',
+        'hint':'Ascend until a \'sweet\' golden cookie is found within ',
         'display':["Farm Lumps OFF","Farm Lumps ON"],
-        'default':0
+        'default':0,
+        'extras':'<a class="option" id="spellDepth" onclick="updateSpellDepth(\'spellDepth\');">${spellDepth} FTHOF spells</a>'
     }
 };
 

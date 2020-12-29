@@ -32,6 +32,7 @@ function setOverrides() {
     FrozenCookies.farmMax = preferenceParse('farmMax', 500);
     FrozenCookies.manaMax = preferenceParse('manaMax', 100);
     FrozenCookies.maxSpecials = preferenceParse('maxSpecials', 1);
+    FrozenCookies.spellDepth = preferenceParse('spellDepth', 30);
 
     // Becomes 0 almost immediately after user input, so default to 0
     FrozenCookies.timeTravelAmount = 0;
@@ -345,6 +346,7 @@ function updateLocalStorage() {
     localStorage.lastHCTime = FrozenCookies.lastHCTime;
     localStorage.manaMax = FrozenCookies.manaMax;
     localStorage.maxSpecials = FrozenCookies.maxSpecials;
+    localStorage.spellDepth = FrozenCookies.spellDepth;
     localStorage.prevLastHCTime = FrozenCookies.prevLastHCTime;
 }
 
@@ -501,6 +503,23 @@ function updateMaxSpecials(base) {
     var newSpecials = getMaxSpecials(FrozenCookies[base]);
     if (newSpecials != FrozenCookies[base]) {
         FrozenCookies[base] = newSpecials;
+        updateLocalStorage();
+        FCStart();
+    }
+}
+
+function getSpellDepth(current) {
+    var newDepth = prompt('Set depth of FTHOF spells to check: ', current);
+    if (typeof(newDepth) == 'undefined' || newDepth == null || isNaN(Number(newDepth)) || Number(newDepth < 0)) {
+        newDepth = current;
+    }
+    return Number(newDepth);
+}
+
+function updateSpellDepth(base) {
+    var newDepth = getSpellDepth(FrozenCookies[base]);
+    if (newDepth != FrozenCookies[base]) {
+        FrozenCookies[base] = newDepth;
         updateLocalStorage();
         FCStart();
     }
@@ -1064,7 +1083,6 @@ function autoFarmLumpsAction()
     const HAGC      = M.spellsById[4];
     const SPELLNAME = "Sugar Lump";
     //const SPELLNAME = "Elder Frenzy";  // DEBUG SPELL TO FIND
-    const SPELLDEPTH = 30;
 
     // Initialize state machine default state.
     if (typeof autoFarmLumpsAction.state == 'undefined') {
@@ -1110,7 +1128,7 @@ function autoFarmLumpsAction()
                     i = 0;
                     found = false;
 
-                    while ((i < SPELLDEPTH) && !found)
+                    while ((i < FrozenCookies.spellDepth) && !found)
                     {
                         if (nextSpellName(i) == SPELLNAME)
                         {
