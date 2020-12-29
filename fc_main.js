@@ -897,12 +897,12 @@ function autoFTHOFComboAction() {
                 }
                 else if (nextSpellName(0) == "Sugar Lump") {
                     M.castSpell(FTHOF);
-                    logEvent('AutoSpell', 'Cast Force the Hand of Fate for Sugar Lump');
+                    logEvent('AutoFTHOF', 'Cast Force the Hand of Fate for Sugar Lump');
                 }
                 else {
                     var hagC = M.spellsById[4];
                     M.castSpell(hagC);
-                    logEvent('AutoSpell', 'Cast Haggler\'s Charm instead of Force the Hand of Fate');
+                    logEvent('AutoFTHOF', 'Cast Haggler\'s Charm instead of Force the Hand of Fate');
                 }
 				break;
 
@@ -992,7 +992,7 @@ function autoFTHOFComboAction() {
 							if (Game.Objects['Wizard tower'].amount >= 445) {
 								autoFTHOFComboAction.count = Game.Objects['Wizard tower'].amount - 1;
 								M.castSpell(FTHOF);
-								logEvent('AutoSpell', 'Cast Force the Hand of Fate');
+								logEvent('AutoFTHOF', 'Cast Force the Hand of Fate');
 
 								Game.Objects['Wizard tower'].sell(autoFTHOFComboAction.count);
 								
@@ -1041,7 +1041,7 @@ function autoFTHOFComboAction() {
 				
 			case 2:
 				M.castSpell(FTHOF);
-				logEvent('AutoSpell', 'Double Casted Force the Hand of Fate');
+				logEvent('AutoFTHOF', 'Double Casted Force the Hand of Fate');
 				Game.Objects['Wizard tower'].buy(autoFTHOFComboAction.count);
 				autoFTHOFComboAction.count = Game.Objects['Wizard tower'].amount;
 				
@@ -1061,9 +1061,10 @@ function autoFTHOFComboAction() {
 function autoFarmLumpsAction() 
 {
     const FTHOF     = M.spellsById[1];
-    const hagC      = M.spellsById[4];
-    const spellName = "Sugar Lump";
-    //const spellName = "Elder Frenzy";
+    const HAGC      = M.spellsById[4];
+    const SPELLNAME = "Sugar Lump";
+    //const SPELLNAME = "Elder Frenzy";  // DEBUG SPELL TO FIND
+    const SPELLDEPTH = 30;
 
     // Initialize state machine default state.
     if (typeof autoFarmLumpsAction.state == 'undefined') {
@@ -1095,7 +1096,7 @@ function autoFarmLumpsAction()
                 if (Game.isMinigameReady(Game.Objects['Wizard tower']))
                 {
                     // Grimoire is unlocked. Begin checking FTHOF spells for a sugar lump.
-                    autoFarmLumpsAction.state = 'checkspells';
+                    autoFarmLumpsAction.state = 'checkSpells';
 
                     // Limit the number of wizard towers to the minimum mana needed to cast FTHOF.
                     FrozenCookies.towerLimit = 1;
@@ -1103,20 +1104,28 @@ function autoFarmLumpsAction()
                 }
                 break;
 
-            case 'checkspells': // Check if a sugar lump is soon to be a FTHOF spell.
+            case 'checkSpells': // Check if a sugar lump is soon to be a FTHOF spell.
                 if (Game.isMinigameReady(Game.Objects['Wizard tower'])) 
                 {
-                    // Check if a sugar lump golden cookie is in the FTHOF queue.
-                    if ((nextSpellName(0) == spellName) ||
-                        (nextSpellName(1) == spellName) ||
-                        (nextSpellName(2) == spellName) ||
-                        (nextSpellName(3) == spellName)) 
+                    i = 0;
+                    found = false;
+
+                    while ((i < SPELLDEPTH) && !found)
                     {
-                        logEvent('AutoFarm', spellName + ' in the Force the Hand of Fate queue: \r\n\t[ ' + nextSpellName(0) + ', ' + nextSpellName(1) + ', ' + nextSpellName(2) + ', ' + nextSpellName(3) + ' ]');                      
+                        if (nextSpellName(i) == SPELLNAME)
+                        {
+                            logEvent('AutoFarm', SPELLNAME + ' in the Force the Hand of Fate queue in ' + i + ' spells');
+                            found = true;                      
+                        }
+                        i++;
+                    }
+
+                    if (found)
+                    {
                         Game.ClosePrompt();                      // Close stop harvesting prompt.                  
                         autoFarmLumpsAction.state = 'waitMana';  // A sugar lump golden cookie is available!
                     }
-                    else 
+                    else
                     { 
                         autoFarmLumpsAction.state = 'ascend';  // No sugar lump golden cookies. Ascend to reseed the FTHOF spells.
                     }
@@ -1139,7 +1148,7 @@ function autoFarmLumpsAction()
             case 'castSpell':  // Cast FTHOF until sugar lump is cast.
                 if (M.magic >= Math.floor(FTHOF.costMin + FTHOF.costPercent*M.magicM))
                 {
-                    if (nextSpellName(0) == spellName)
+                    if (nextSpellName(0) == SPELLNAME)
                     {
                         M.castSpell(FTHOF);
                         logEvent('AutoFarm', 'Cast Force the Hand of Fate');
@@ -1150,8 +1159,9 @@ function autoFarmLumpsAction()
                     else
                     {
                         // Cast Haggler's Charm until the wanted FTHOF is found.
-                        M.castSpell(hagC);
-                        logEvent('AutoFarm', 'Cast Haggler\'s Charm instead of Force the Hand of Fate');
+                        M.castSpell(HAGC);
+                        logEvent('AutoFarm', 'Cast Haggler\'s Charm');
+                        autoFarmLumpsAction.state = 'checkSpells';            // Recheck the spell queue.
                     }                
                 }
                 break;
@@ -1161,11 +1171,12 @@ function autoFarmLumpsAction()
                 {
                     FrozenCookies.autoGc = autoFarmLumpsAction.prevAutoGC;  // Restore auto click golden cookie state.
                     Game.WriteSave();                                       // Save the game.
-                    autoFarmLumpsAction.state = 'checkspells';              // Check if any more sugar lump golden cookies are queued.
+                    autoFarmLumpsAction.state = 'checkSpells';              // Check if any more sugar lump golden cookies are queued.
                 }
                 break;
 
             case 'ascend':  // Ascend to look for another sugar lump.
+                logEvent('AutoFarm', 'Ascending');
                 Game.Ascend(1);                        
                 Game.AscendTimer = Game.AscendDuration;  // Bypass ascension animation.
                 Game.OnAscend = 1;
