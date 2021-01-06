@@ -50,6 +50,7 @@ const data =
     highCost    : 0,  // Highest Cost.
     cost        : 0,  // Stock cost.
     prevCost    : 0,  // Previous cost.
+    purStocked  : 0,  // Purchased stock.
     rawValues   : []  // History of costs.
 }
 
@@ -88,15 +89,17 @@ function createStockTip(i)
     bankGoodElement.insertAdjacentHTML('beforeend', lowElement);
 }
 
-function updateStockTip(i)
+function updateStockTip(i, purStock, maxStock)
 {
     // Update color, text, and buy/sell info for the current stock price.
-    if (stockData[i].cost > stockData[i].avgHigh)
+    if ((stockData[i].cost > stockData[i].avgHigh) &&
+        (purStock > 0))
     {
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (SELL)';
         document.getElementById('stockData['+i+'].cost').style.color = 'lime';
     } 
-    else if (stockData[i].cost < stockData[i].avgLow)
+    else if ((stockData[i].cost < stockData[i].avgLow) &&
+             (purStock < maxStock))
     {
 
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (BUY)';
@@ -130,17 +133,19 @@ function logic()
         var market = M.minigame;
         var updateSave = false;
 
+        // Check stock goods for changes.
         for (var i = 0; i < market.goodsById.length; i++)
         {
-            var good = stockData[i];  // Retrieve good record.
+            var good = stockData[i];              // Retrieve good record.
 
             good.cost = market.goodsById[i].val;  // Get current stock price.
             
             if (good.cost != good.prevCost)
             {
-                updateSave = true;
-                good.prevCost = good.cost;
-                good.rawValues.push(good.cost);
+                updateSave = true;                      // Stock tick has occurred, update saved information.
+
+                good.prevCost = good.cost;              // Store previous cost.                
+                good.rawValues.push(good.cost);         // Store raw cost values.
 
                 if (good.samples)
                 {
@@ -174,16 +179,26 @@ function logic()
                 else
                 {
                     // Initial sample.
-                    good.avgCost  = good.cost;
-                    good.avgLow   = good.cost;
-                    good.avgHigh  = good.cost;
                     good.highCost = good.cost;
+                    good.avgHigh  = good.cost;
+                    good.avgCost  = good.cost;
+                    good.avgLow   = good.cost;                
                     good.lowCost  = good.cost;
                 }
 
                 good.samples++;
+            }
 
-                updateStockTip(i);
+            var purStock = market.goodsById[i].stock;
+            
+            // Update stock tip if the price has changed or if stock has been purchased or sold.
+            if ((good.cost != good.prevCost) ||
+                (good.purStocked != purStock))
+            {
+                good.purStocked = purStock;                                  // Store 
+                var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock.
+
+                updateStockTip(i, purStock, maxStock);
             }
         }
 
