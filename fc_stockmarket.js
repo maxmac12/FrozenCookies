@@ -73,15 +73,19 @@ function createStockTip(i)
 {
     bankGoodElement = document.getElementById('bankGood-' + i);
 
-    var costElement    = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Cost:    <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].cost">-</span></div>';
-    var avgCostElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgCost: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgCost">-</span></div>';
-    var avgHighElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgHigh: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgHigh">-</span></div>';
-    var avgLowElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgLow:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgLow">-</span></div>';    
+    var costElement    = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Cost:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].cost">-</span></div>';
+    var highElement    = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">High:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].highCost">-</span></div>';
+    var avgHighElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg H: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgHigh">-</span></div>';
+    var avgCostElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg:   <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgCost">-</span></div>';
+    var avgLowElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg L: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgLow">-</span></div>';    
+    var lowElement     = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Low:   <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].lowCost">-</span></div>';
 
     bankGoodElement.insertAdjacentHTML('beforeend', costElement);
-    bankGoodElement.insertAdjacentHTML('beforeend', avgCostElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', highElement);
     bankGoodElement.insertAdjacentHTML('beforeend', avgHighElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', avgCostElement);
     bankGoodElement.insertAdjacentHTML('beforeend', avgLowElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', lowElement);
 }
 
 function updateStockTip(i)
@@ -105,9 +109,11 @@ function updateStockTip(i)
     }
 
     // Update text for remaining stock information.
-    document.getElementById('stockData['+i+'].avgCost').textContent = stockData[i].avgCost.toFixed(2);
-    document.getElementById('stockData['+i+'].avgHigh').textContent = stockData[i].avgHigh.toFixed(2);
-    document.getElementById('stockData['+i+'].avgLow').textContent  = stockData[i].avgLow.toFixed(2);
+    document.getElementById('stockData['+i+'].highCost').textContent = stockData[i].highCost.toFixed(2);
+    document.getElementById('stockData['+i+'].avgHigh').textContent  = stockData[i].avgHigh.toFixed(2);
+    document.getElementById('stockData['+i+'].avgCost').textContent  = stockData[i].avgCost.toFixed(2);
+    document.getElementById('stockData['+i+'].avgLow').textContent   = stockData[i].avgLow.toFixed(2);
+    document.getElementById('stockData['+i+'].lowCost').textContent  = stockData[i].lowCost.toFixed(2);
 }
 
 function saveStockData()
