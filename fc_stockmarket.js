@@ -86,12 +86,25 @@ function createStockTip(i)
 
 function updateStockTip(i)
 {
-    var color = 'white';
-    if (stockData[i].cost >= stockData[i].avgHigh) color = 'lime';
-    if (stockData[i].cost <= stockData[i].avgLow) color  = 'red';
-    document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2);
-    document.getElementById('stockData['+i+'].cost').style.color = color;
+    // Update color, text, and buy/sell info for the current stock price.
+    if (stockData[i].cost > stockData[i].avgHigh)
+    {
+        document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (SELL)';
+        document.getElementById('stockData['+i+'].cost').style.color = 'lime';
+    } 
+    else if (stockData[i].cost < stockData[i].avgLow)
+    {
 
+        document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (BUY)';
+        document.getElementById('stockData['+i+'].cost').style.color = 'orange';
+    }
+    else
+    {
+        document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2);
+        document.getElementById('stockData['+i+'].cost').style.color = 'white';
+    }
+
+    // Update text for remaining stock information.
     document.getElementById('stockData['+i+'].avgCost').textContent = stockData[i].avgCost.toFixed(2);
     document.getElementById('stockData['+i+'].avgHigh').textContent = stockData[i].avgHigh.toFixed(2);
     document.getElementById('stockData['+i+'].avgLow').textContent  = stockData[i].avgLow.toFixed(2);
