@@ -96,20 +96,46 @@ function updateStockTip(i, purStock, maxStock)
     if ((stockData[i].cost > stockData[i].avgHigh) &&
         (purStock > 0))
     {
+        // Indicate to SELL stock.
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (SELL)';
-        document.getElementById('stockData['+i+'].cost').style.color = 'lime';
+
+        // Highlight current cost and average high.
+        document.getElementById('stockData['+i+'].cost').style.color    = 'lime';
+        document.getElementById('stockData['+i+'].avgHigh').style.color = 'lime';
+
+        // Highlight high stock price if cost is at its highest.
+        if (stockData[i].cost >= stockData[i].highCost)
+        {
+            document.getElementById('stockData['+i+'].highCost').style.color = 'lime';
+        }
     } 
     else if ((stockData[i].cost < stockData[i].avgLow) &&
              (purStock < maxStock))
     {
-
+        // Indicate to BUY stock.
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (BUY)';
-        document.getElementById('stockData['+i+'].cost').style.color = 'orange';
+
+        // Highlight current cost and average low.
+        document.getElementById('stockData['+i+'].cost').style.color   = 'orange';
+        document.getElementById('stockData['+i+'].avgLow').style.color = 'orange';
+
+        // Highlight low stock price if cost is at its lowest.
+        if (stockData[i].cost <= stockData[i].lowCost)
+        {
+            document.getElementById('stockData['+i+'].lowCost').style.color = 'orange';
+        }
     }
     else
     {
+        // Neutral stock indication.
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2);
-        document.getElementById('stockData['+i+'].cost').style.color = 'white';
+
+        // Remove any potential highlighting.
+        document.getElementById('stockData['+i+'].cost').style.color     = 'white';
+        document.getElementById('stockData['+i+'].highCost').style.color = 'white';
+        document.getElementById('stockData['+i+'].avgHigh').style.color  = 'white';
+        document.getElementById('stockData['+i+'].avgLow').style.color   = 'white';
+        document.getElementById('stockData['+i+'].lowCost').style.color  = 'white';
     }
 
     // Update text for remaining stock information.
