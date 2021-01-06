@@ -64,6 +64,37 @@ for (var i = 0; i < Game.Objects['Bank'].minigame.goodsById.length; i++)
         stockData[i] = JSON.parse(JSON.stringify(data));
         console.log("Created stockData[" + i + "]");
     }
+
+    createStockTip(i);
+    updateStockTip(i);
+}
+
+function createStockTip(i)
+{
+    bankGoodElement = document.getElementById('bankGood-' + i);
+
+    var costElement    = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Cost:    <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].cost">-</span></div>';
+    var avgCostElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgCost: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgCost">-</span></div>';
+    var avgHighElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgHigh: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgHigh">-</span></div>';
+    var avgLowElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">AvgLow:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgLow">-</span></div>';    
+
+    bankGoodElement.insertAdjacentHTML('beforeend', costElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', avgCostElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', avgHighElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', avgLowElement);
+}
+
+function updateStockTip(i)
+{
+    var color = 'white';
+    if (stockData[i].cost >= stockData[i].avgHigh) color = 'lime';
+    if (stockData[i].cost <= stockData[i].avgLow) color  = 'red';
+    document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2);
+    document.getElementById('stockData['+i+'].cost').style.color = color;
+
+    document.getElementById('stockData['+i+'].avgCost').textContent = stockData[i].avgCost.toFixed(2);
+    document.getElementById('stockData['+i+'].avgHigh').textContent = stockData[i].avgHigh.toFixed(2);
+    document.getElementById('stockData['+i+'].avgLow').textContent  = stockData[i].avgLow.toFixed(2);
 }
 
 function saveStockData()
@@ -132,7 +163,9 @@ function logic()
                 }
 
                 good.samples++;
-            }            
+
+                updateStockTip(i);
+            }
         }
 
         if (updateSave)
