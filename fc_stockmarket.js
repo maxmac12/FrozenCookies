@@ -50,7 +50,8 @@ const data =
     highCost    : 0,  // Highest Cost.
     cost        : 0,  // Stock cost.
     prevCost    : 0,  // Previous cost.
-    purStocked  : 0,  // Purchased stock.
+    purStock    : 0,  // Purchased stock.
+    maxStock    : 0,  // Maximum purchaseable stock.
     rawValues   : []  // History of costs.
 }
 
@@ -128,25 +129,47 @@ function logic()
 {
     var M = Game.Objects['Bank'];
     
+    // Check if stock minigame has been loaded.
     if(M.minigameLoaded)
     {
-        var market = M.minigame;
-        var updateSave = false;
-
+        var updateSave = false;   // Flag indicating if stock information should be saved.
+        var market = M.minigame;  // Retrieve market minigame.
+        
         // Check stock goods for changes.
         for (var i = 0; i < market.goodsById.length; i++)
         {
-            var good = stockData[i];              // Retrieve good record.
+            var refreshStockTip = false;                                 // Flag indicating stock tooltip should be refreshed.
 
-            good.cost = market.goodsById[i].val;  // Get current stock price.
-            
-            if (good.cost != good.prevCost)
+            var good     = stockData[i];                                 // Retrieve stock record.
+            var currCost = market.goodsById[i].val;                      // Get current stock price.
+            var purStock = market.goodsById[i].stock;                    // Get purchased stock amount.
+            var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
+
+            // Check if stock has been purchased or sold.
+            if (good.purStocked != purStock) 
             {
-                updateSave = true;                      // Stock tick has occurred, update saved information.
+                refreshStockTip = true;      // Purchased stock has changed.  Refresh stock tooltip.
+                good.purStock   = purStock;  // Update purchased stock amount.
+            }
 
-                good.prevCost = good.cost;              // Store previous cost.                
-                good.rawValues.push(good.cost);         // Store raw cost values.
+            // Check if buildings have been bough or sold resulting in the purchaseable stock amount to change.
+            if (good.maxStock != maxStock)
+            {
+                refreshStockTip = true;      // Maximum purchaseable stock has changed. Refresh stock tooltip. 
+                good.maxStock   = maxStock;  // Update maximum purchaseable stock amount.
+            }
+            
+            // Check if stock cost has changed.
+            if (currCost != good.prevCost)
+            {
+                refreshStockTip = true;  // Stock cost has changed. Refresh stock tooltip.               
+                updateSave      = true;  // Update saved stock information.
 
+                good.prevCost = good.cost;        // Update previous stock cost.                
+                good.cost     = currCost;         // Update current stock cost.
+                good.rawValues.push(good.cost);   // Store raw cost values.
+
+                // Check if stock information has been previously sampled.
                 if (good.samples)
                 {
                     // Calculate average cost.
@@ -178,7 +201,7 @@ function logic()
                 }
                 else
                 {
-                    // Initial sample.
+                    // Initialize stock information.
                     good.highCost = good.cost;
                     good.avgHigh  = good.cost;
                     good.avgCost  = good.cost;
@@ -189,15 +212,9 @@ function logic()
                 good.samples++;
             }
 
-            var purStock = market.goodsById[i].stock;
-            
             // Update stock tip if the price has changed or if stock has been purchased or sold.
-            if ((good.cost != good.prevCost) ||
-                (good.purStocked != purStock))
+            if (refreshStockTip)
             {
-                good.purStocked = purStock;                                  // Store 
-                var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock.
-
                 updateStockTip(i, purStock, maxStock);
             }
         }
