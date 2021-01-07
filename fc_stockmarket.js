@@ -100,13 +100,13 @@ function updateStockTip(i, purStock, maxStock)
         document.getElementById('stockData['+i+'].cost').textContent = stockData[i].cost.toFixed(2) + ' (SELL)';
 
         // Highlight current cost and average high.
-        document.getElementById('stockData['+i+'].cost').style.color    = 'lime';
-        document.getElementById('stockData['+i+'].avgHigh').style.color = 'lime';
+        document.getElementById('stockData['+i+'].cost').style.color    = 'cyan';
+        document.getElementById('stockData['+i+'].avgHigh').style.color = 'cyan';
 
         // Highlight high stock price if cost is at its highest.
         if (stockData[i].cost >= stockData[i].highCost)
         {
-            document.getElementById('stockData['+i+'].highCost').style.color = 'lime';
+            document.getElementById('stockData['+i+'].highCost').style.color = 'cyan';
         }
     } 
     else if ((stockData[i].cost < stockData[i].avgLow) &&
@@ -172,7 +172,7 @@ function logic()
             var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
 
             // Check if stock has been purchased or sold.
-            if (good.purStocked != purStock) 
+            if (good.purStock != purStock) 
             {
                 refreshStockTip = true;      // Purchased stock has changed.  Refresh stock tooltip.
                 good.purStock   = purStock;  // Update purchased stock amount.
