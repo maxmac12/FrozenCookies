@@ -108,6 +108,10 @@ function updateStockTip(i, purStock, maxStock)
         {
             document.getElementById('stockData['+i+'].highCost').style.color = 'cyan';
         }
+        else
+        {
+            document.getElementById('stockData['+i+'].highCost').style.color = 'white';
+        }
     } 
     else if ((stockData[i].cost < stockData[i].avgLow) &&
              (purStock < maxStock))
@@ -123,6 +127,10 @@ function updateStockTip(i, purStock, maxStock)
         if (stockData[i].cost <= stockData[i].lowCost)
         {
             document.getElementById('stockData['+i+'].lowCost').style.color = 'orange';
+        }
+        else
+        {
+            document.getElementById('stockData['+i+'].lowCost').style.color = 'white';
         }
     }
     else
