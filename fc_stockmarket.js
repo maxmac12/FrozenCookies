@@ -52,14 +52,17 @@ const data =
     prevCost    : 0,  // Previous cost.
     purStock    : 0,  // Purchased stock.
     maxStock    : 0,  // Maximum purchaseable stock.
+    ppHigh      : 0,  // Highest Price of purchased stock.
     rawValues   : []  // History of costs.
 }
 
 // Retrieve stock data from local storage.
 var stockData = JSON.parse(localStorage.getItem("stockData") || "[]");
 
+// Check retrieved data.
 for (var i = 0; i < Game.Objects['Bank'].minigame.goodsById.length; i++)
 {
+    // Initialize data if necessary.
     if (!stockData[i]) 
     {
         // Initialize stock data.
@@ -67,6 +70,26 @@ for (var i = 0; i < Game.Objects['Bank'].minigame.goodsById.length; i++)
         console.log("Created stockData[" + i + "]");
     }
 
+    // Initialize any newly added data properties.
+    for (const property in data)
+    {
+        if (!(property in stockData[i]))
+        {
+            stockData[i][property] = data[property];
+            console.log("Created stockData[" + i + "][" + property + "]");
+        }
+    }
+
+    // Remove any unused properties.
+    for (const property in stockData[i])
+    {
+        if (!(property in data))
+        {
+            delete stockData[i][property];
+            console.log("stockData[" + i + "][" + property + "] removed");
+        }
+    }
+    
     createStockTip(i);
     updateStockTip(i);
 }
@@ -81,6 +104,7 @@ function createStockTip(i)
     var avgCostElement = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg:   <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgCost">-</span></div>';
     var avgLowElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg L: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgLow">-</span></div>';    
     var lowElement     = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Low:   <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].lowCost">-</span></div>';
+    var ppHighElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">PP H:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].ppHigh">-</span></div>';
 
     bankGoodElement.insertAdjacentHTML('beforeend', costElement);
     bankGoodElement.insertAdjacentHTML('beforeend', highElement);
@@ -88,6 +112,7 @@ function createStockTip(i)
     bankGoodElement.insertAdjacentHTML('beforeend', avgCostElement);
     bankGoodElement.insertAdjacentHTML('beforeend', avgLowElement);
     bankGoodElement.insertAdjacentHTML('beforeend', lowElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', ppHighElement);
 }
 
 function updateStockTip(i, purStock, maxStock)
@@ -144,6 +169,17 @@ function updateStockTip(i, purStock, maxStock)
         document.getElementById('stockData['+i+'].avgHigh').style.color  = 'white';
         document.getElementById('stockData['+i+'].avgLow').style.color   = 'white';
         document.getElementById('stockData['+i+'].lowCost').style.color  = 'white';
+        document.getElementById('stockData['+i+'].ppHigh').style.color   = 'white';
+    }
+
+    // Update text for high purchase price.
+    if (stockData[i].ppHigh > 0)
+    {
+        document.getElementById('stockData['+i+'].ppHigh').textContent = stockData[i].ppHigh.toFixed(2);
+    }
+    else
+    {
+        document.getElementById('stockData['+i+'].ppHigh').textContent = "-";
     }
 
     // Update text for remaining stock information.
@@ -182,6 +218,21 @@ function logic()
             // Check if stock has been purchased or sold.
             if (good.purStock != purStock) 
             {
+                // Check if stock has been purchased.
+                if (purStock > good.purStock)  
+                {
+                    // Stock has been purchased. Check if the high purchase price has changed.
+                    if (good.ppHigh < good.cost)
+                    {
+                        good.ppHigh = good.cost;   
+                    }                 
+                }
+                else if (purStock == 0)  // Check if all stock has been sold.
+                {
+                    // All stock has been sold. Reset the high purchase price.
+                    good.ppHigh = 0;
+                }
+
                 refreshStockTip = true;      // Purchased stock has changed.  Refresh stock tooltip.
                 good.purStock   = purStock;  // Update purchased stock amount.
             }
