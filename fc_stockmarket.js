@@ -169,17 +169,36 @@ function updateStockTip(i, purStock, maxStock)
         document.getElementById('stockData['+i+'].avgHigh').style.color  = 'white';
         document.getElementById('stockData['+i+'].avgLow').style.color   = 'white';
         document.getElementById('stockData['+i+'].lowCost').style.color  = 'white';
-        document.getElementById('stockData['+i+'].ppHigh').style.color   = 'white';
     }
 
-    // Update text for high purchase price.
+    // Update color and text for high purchase price.
     if (stockData[i].ppHigh > 0)
     {
         document.getElementById('stockData['+i+'].ppHigh').textContent = stockData[i].ppHigh.toFixed(2);
+        
+        // Highlight purchase price to show if a profit or loss would occur with a SELL.
+        if (stockData[i].ppHigh > stockData[i].cost)
+        {
+            // Indicate a loss.
+            document.getElementById('stockData['+i+'].ppHigh').textContent += " (-" + Math.abs(stockData[i].ppHigh - stockData[i].cost).toFixed(2) + ")";
+            document.getElementById('stockData['+i+'].ppHigh').style.color = 'orange';
+        }
+        else if (stockData[i].ppHigh < stockData[i].cost)
+        {
+            // Indicate a profit.
+            document.getElementById('stockData['+i+'].ppHigh').textContent += " (+" + Math.abs(stockData[i].ppHigh - stockData[i].cost).toFixed(2) + ")";
+            document.getElementById('stockData['+i+'].ppHigh').style.color = 'cyan';
+        }
+        else
+        {
+            // Indicate no gain.
+            document.getElementById('stockData['+i+'].ppHigh').style.color = 'white';
+        }
     }
     else
     {
         document.getElementById('stockData['+i+'].ppHigh').textContent = "-";
+        document.getElementById('stockData['+i+'].ppHigh').style.color = 'white';
     }
 
     // Update text for remaining stock information.
