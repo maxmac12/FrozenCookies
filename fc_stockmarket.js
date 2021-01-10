@@ -105,6 +105,7 @@ function createStockTip(i)
     var avgLowElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Avg L: <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].avgLow">-</span></div>';    
     var lowElement     = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Low:   <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].lowCost">-</span></div>';
     var ppHighElement  = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">PP H:  <span style="font-weight:bold;color:#fff;" id="stockData['+i+'].ppHigh">-</span></div>';
+    var modeElement    = '<div class="bankSymbol" style="margin:1px 0px;display:block;font-size:10px;width:100%;background:linear-gradient(to right,transparent,#333,#333,transparent);padding:2px 0px;overflow:hidden;white-space:nowrap;">Mode:  <span style="font-weight:bold;color:#fff;" id="stockMode-'+i+'">-</span></div>';
 
     bankGoodElement.insertAdjacentHTML('beforeend', costElement);
     bankGoodElement.insertAdjacentHTML('beforeend', highElement);
@@ -113,9 +114,11 @@ function createStockTip(i)
     bankGoodElement.insertAdjacentHTML('beforeend', avgLowElement);
     bankGoodElement.insertAdjacentHTML('beforeend', lowElement);
     bankGoodElement.insertAdjacentHTML('beforeend', ppHighElement);
+    bankGoodElement.insertAdjacentHTML('beforeend', modeElement)
+    bankGoodElement.style.margin = '5px';  // Add separation between elements for better readability.
 }
 
-function updateStockTip(i, purStock, maxStock)
+function updateStockTip(i, purStock, maxStock, mode)
 {
     // Update color, text, and buy/sell info for the current stock price.
     if ((stockData[i].cost > stockData[i].avgHigh) &&
@@ -207,11 +210,35 @@ function updateStockTip(i, purStock, maxStock)
     document.getElementById('stockData['+i+'].avgCost').textContent  = stockData[i].avgCost.toFixed(2);
     document.getElementById('stockData['+i+'].avgLow').textContent   = stockData[i].avgLow.toFixed(2);
     document.getElementById('stockData['+i+'].lowCost').textContent  = stockData[i].lowCost.toFixed(2);
+    document.getElementById('stockMode-'+i).textContent = getStockMode(mode);
+    document.getElementById('stockMode-'+i).style.color = getStockModeColor(mode);
 }
 
 function saveStockData()
 {
     localStorage.setItem("stockData", JSON.stringify(stockData));
+}
+
+const STOCK_MODES = ['Stable', 'Slow Rise', 'Slow Fall', 'Fast Rise', 'Fast Fall', 'Chaotic'];
+function getStockMode(mode)
+{
+    if ((mode >= 0) && (mode < STOCK_MODES.length))
+    {
+        return STOCK_MODES[mode];
+    }
+    
+    return 'Unknown';
+}
+
+const STOCK_MODE_CLR = ['white', 'lime', 'red', 'lime', 'red', 'yellow'];
+function getStockModeColor(mode)
+{
+    if ((mode >= 0) && (mode < STOCK_MODES.length))
+    {
+        return STOCK_MODE_CLR[mode];
+    }
+    
+    return 'white';
 }
 
 function logic() 
@@ -233,6 +260,7 @@ function logic()
             var currCost = market.goodsById[i].val;                      // Get current stock price.
             var purStock = market.goodsById[i].stock;                    // Get purchased stock amount.
             var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
+            var mode     = market.goodsById[i].mode;
 
             // Check if stock has been purchased or sold.
             if (good.purStock != purStock) 
@@ -319,7 +347,7 @@ function logic()
             // Update stock tip if the price has changed or if stock has been purchased or sold.
             if (refreshStockTip)
             {
-                updateStockTip(i, purStock, maxStock);
+                updateStockTip(i, purStock, maxStock, mode);
             }
         }
 
