@@ -118,7 +118,7 @@ function createStockTip(i)
     bankGoodElement.style.margin = '5px';  // Add separation between elements for better readability.
 }
 
-function updateStockTip(i, purStock, maxStock, mode)
+function updateStockTip(i, purStock, maxStock, mode, duration)
 {
     // Update color, text, and buy/sell info for the current stock price.
     if ((stockData[i].cost > stockData[i].avgHigh) &&
@@ -210,7 +210,7 @@ function updateStockTip(i, purStock, maxStock, mode)
     document.getElementById('stockData['+i+'].avgCost').textContent  = stockData[i].avgCost.toFixed(2);
     document.getElementById('stockData['+i+'].avgLow').textContent   = stockData[i].avgLow.toFixed(2);
     document.getElementById('stockData['+i+'].lowCost').textContent  = stockData[i].lowCost.toFixed(2);
-    document.getElementById('stockMode-'+i).textContent = getStockMode(mode);
+    document.getElementById('stockMode-'+i).textContent = getStockMode(mode, duration);
     document.getElementById('stockMode-'+i).style.color = getStockModeColor(mode);
 }
 
@@ -220,11 +220,11 @@ function saveStockData()
 }
 
 const STOCK_MODES = ['Stable', 'Slow Rise', 'Slow Fall', 'Fast Rise', 'Fast Fall', 'Chaotic'];
-function getStockMode(mode)
+function getStockMode(mode, dur)
 {
     if ((mode >= 0) && (mode < STOCK_MODES.length))
     {
-        return STOCK_MODES[mode];
+        return STOCK_MODES[mode] + ' (' +dur+ ' ticks)';
     }
     
     return 'Unknown';
@@ -260,7 +260,8 @@ function logic()
             var currCost = market.goodsById[i].val;                      // Get current stock price.
             var purStock = market.goodsById[i].stock;                    // Get purchased stock amount.
             var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
-            var mode     = market.goodsById[i].mode;
+            var mode     = market.goodsById[i].mode;                     // Get the current stock mode.
+            var dur      = market.goodsById[i].dur;                      // Get the duration of current stock mode.
 
             // Check if stock has been purchased or sold.
             if (good.purStock != purStock) 
@@ -347,7 +348,7 @@ function logic()
             // Update stock tip if the price has changed or if stock has been purchased or sold.
             if (refreshStockTip)
             {
-                updateStockTip(i, purStock, maxStock, mode);
+                updateStockTip(i, purStock, maxStock, mode, dur);
             }
         }
 
