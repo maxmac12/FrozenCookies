@@ -56,43 +56,16 @@ const data =
     rawValues   : []  // History of costs.
 }
 
-// Retrieve stock data from local storage.
-var stockData = JSON.parse(localStorage.getItem("stockData") || "[]");
+// Stock modes and associated display colors.
+const STOCK_MODES    = ['Stable', 'Slow Rise', 'Slow Fall', 'Fast Rise', 'Fast Fall', 'Chaotic'];
+const STOCK_MODE_CLR = ['white',  'lime',      'red',       'lime',      'red',       'yellow'];
 
-// Check retrieved data.
-for (var i = 0; i < Game.Objects['Bank'].minigame.goodsById.length; i++)
-{
-    // Initialize data if necessary.
-    if (!stockData[i]) 
-    {
-        // Initialize stock data.
-        stockData[i] = JSON.parse(JSON.stringify(data));
-        console.log("Created stockData[" + i + "]");
-    }
+// Flag indicating that stock data/display has been initialized.
+var initialized = false;  
 
-    // Initialize any newly added data properties.
-    for (const property in data)
-    {
-        if (!(property in stockData[i]))
-        {
-            stockData[i][property] = data[property];
-            console.log("Created stockData[" + i + "][" + property + "]");
-        }
-    }
+// Array containing all stock data information.
+var stockData = [];
 
-    // Remove any unused properties.
-    for (const property in stockData[i])
-    {
-        if (!(property in data))
-        {
-            delete stockData[i][property];
-            console.log("stockData[" + i + "][" + property + "] removed");
-        }
-    }
-    
-    createStockTip(i);
-    updateStockTip(i);
-}
 
 function createStockTip(i)
 {
@@ -117,6 +90,7 @@ function createStockTip(i)
     bankGoodElement.insertAdjacentHTML('beforeend', modeElement)
     bankGoodElement.style.margin = '5px';  // Add separation between elements for better readability.
 }
+
 
 function updateStockTip(i, purStock, maxStock, mode, duration)
 {
@@ -214,12 +188,13 @@ function updateStockTip(i, purStock, maxStock, mode, duration)
     document.getElementById('stockMode-'+i).style.color = getStockModeColor(mode);
 }
 
+
 function saveStockData()
 {
     localStorage.setItem("stockData", JSON.stringify(stockData));
 }
 
-const STOCK_MODES = ['Stable', 'Slow Rise', 'Slow Fall', 'Fast Rise', 'Fast Fall', 'Chaotic'];
+
 function getStockMode(mode, dur)
 {
     if ((mode >= 0) && (mode < STOCK_MODES.length))
@@ -230,7 +205,7 @@ function getStockMode(mode, dur)
     return 'Unknown';
 }
 
-const STOCK_MODE_CLR = ['white', 'lime', 'red', 'lime', 'red', 'yellow'];
+
 function getStockModeColor(mode)
 {
     if ((mode >= 0) && (mode < STOCK_MODES.length))
@@ -241,6 +216,52 @@ function getStockModeColor(mode)
     return 'white';
 }
 
+
+function init()
+{
+    // Retrieve stock data from local storage.
+    stockData = JSON.parse(localStorage.getItem("stockData") || "[]");
+
+    // Check retrieved data.
+    for (var i = 0; i < Game.Objects['Bank'].minigame.goodsById.length; i++)
+    {
+        // Initialize data if necessary.
+        if (!stockData[i]) 
+        {
+            // Initialize stock data.
+            stockData[i] = JSON.parse(JSON.stringify(data));
+            console.log("Created stockData[" + i + "]");
+        }
+
+        // Initialize any newly added data properties.
+        for (const property in data)
+        {
+            if (!(property in stockData[i]))
+            {
+                stockData[i][property] = data[property];
+                console.log("Created stockData[" + i + "][" + property + "]");
+            }
+        }
+
+        // Remove any unused properties.
+        for (const property in stockData[i])
+        {
+            if (!(property in data))
+            {
+                delete stockData[i][property];
+                console.log("stockData[" + i + "][" + property + "] removed");
+            }
+        }
+        
+        createStockTip(i);
+        updateStockTip(i);
+    }
+
+    initialized = true;  // Indicate initialization is complete.
+    console.log("Stock Market Helper Initialized");
+}
+
+
 function logic() 
 {
     var M = Game.Objects['Bank'];
@@ -248,118 +269,124 @@ function logic()
     // Check if stock minigame has been loaded.
     if(M.minigameLoaded)
     {
-        var updateSave = false;   // Flag indicating if stock information should be saved.
-        var market = M.minigame;  // Retrieve market minigame.
-        
-        // Check stock goods for changes.
-        for (var i = 0; i < market.goodsById.length; i++)
+        if (!initialized)
         {
-            var refreshStockTip = false;                                 // Flag indicating stock tooltip should be refreshed.
-
-            var good     = stockData[i];                                 // Retrieve stock record.
-            var currCost = market.goodsById[i].val;                      // Get current stock price.
-            var purStock = market.goodsById[i].stock;                    // Get purchased stock amount.
-            var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
-            var mode     = market.goodsById[i].mode;                     // Get the current stock mode.
-            var dur      = market.goodsById[i].dur;                      // Get the duration of current stock mode.
-
-            // Check if stock has been purchased or sold.
-            if (good.purStock != purStock) 
-            {
-                // Check if stock has been purchased.
-                if (purStock > good.purStock)  
-                {
-                    // Stock has been purchased. Check if the high purchase price has changed.
-                    if (good.ppHigh < good.cost)
-                    {
-                        good.ppHigh = good.cost;   
-                    }                 
-                }
-                else if (purStock == 0)  // Check if all stock has been sold.
-                {
-                    // All stock has been sold. Reset the high purchase price.
-                    good.ppHigh = 0;
-                }
-
-                refreshStockTip = true;      // Purchased stock has changed.  Refresh stock tooltip.
-                good.purStock   = purStock;  // Update purchased stock amount.
-            }
-
-            // Check if buildings have been bough or sold resulting in the purchaseable stock amount to change.
-            if (good.maxStock != maxStock)
-            {
-                refreshStockTip = true;      // Maximum purchaseable stock has changed. Refresh stock tooltip. 
-                good.maxStock   = maxStock;  // Update maximum purchaseable stock amount.
-            }
-            
-            // Check if stock cost has changed.
-            if (currCost != good.prevCost)
-            {
-                refreshStockTip = true;  // Stock cost has changed. Refresh stock tooltip.               
-                updateSave      = true;  // Update saved stock information.
-
-                good.prevCost = good.cost;        // Update previous stock cost.                
-                good.cost     = currCost;         // Update current stock cost.
-                good.rawValues.push(good.cost);   // Store raw cost values.
-
-                // Check if stock information has been previously sampled.
-                if (good.samples)
-                {
-                    // Calculate average cost.
-                    good.avgCost = calcRunningAvg(good.avgCost, good.cost, good.samples);
-
-                    // Calculate average low cost.
-                    if (good.cost < good.avgCost)
-                    {
-                        good.avgLow = calcRunningAvg(good.avgLow, good.cost, good.samplesLow++);
-                    }
-                    
-                    // Calculate average high cost.
-                    if (good.cost > good.avgCost)
-                    {
-                        good.avgHigh = calcRunningAvg(good.avgHigh, good.cost, good.samplesHigh++);
-                    }
-
-                    // Calculate low cost.
-                    if (good.cost < good.lowCost)
-                    {
-                        good.lowCost = good.cost;    
-                    }
-
-                    // Calculate high cost.
-                    if (good.cost > good.highCost)
-                    {
-                        good.highCost = good.cost;    
-                    }
-                }
-                else
-                {
-                    // Initialize stock information.
-                    good.highCost = good.cost;
-                    good.avgHigh  = good.cost;
-                    good.avgCost  = good.cost;
-                    good.avgLow   = good.cost;                
-                    good.lowCost  = good.cost;
-                }
-
-                good.samples++;
-            }
-
-            // Update stock tip if the price has changed or if stock has been purchased or sold.
-            if (refreshStockTip)
-            {
-                updateStockTip(i, purStock, maxStock, mode, dur);
-            }
+            init();
         }
+        else
+        {
+            var updateSave = false;   // Flag indicating if stock information should be saved.
+            var market = M.minigame;  // Retrieve market minigame.
+            
+            // Check stock goods for changes.
+            for (var i = 0; i < market.goodsById.length; i++)
+            {
+                var refreshStockTip = false;                                 // Flag indicating stock tooltip should be refreshed.
 
-        if (updateSave)
-        {    
-          saveStockData();
+                var good     = stockData[i];                                 // Retrieve stock record.
+                var currCost = market.goodsById[i].val;                      // Get current stock price.
+                var purStock = market.goodsById[i].stock;                    // Get purchased stock amount.
+                var maxStock = market.getGoodMaxStock(market.goodsById[i]);  // Get maximum purchaseable stock amount.
+                var mode     = market.goodsById[i].mode;                     // Get the current stock mode.
+                var dur      = market.goodsById[i].dur;                      // Get the duration of current stock mode.
+
+                // Check if stock has been purchased or sold.
+                if (good.purStock != purStock) 
+                {
+                    // Check if stock has been purchased.
+                    if (purStock > good.purStock)  
+                    {
+                        // Stock has been purchased. Check if the high purchase price has changed.
+                        if (good.ppHigh < good.cost)
+                        {
+                            good.ppHigh = good.cost;   
+                        }                 
+                    }
+                    else if (purStock == 0)  // Check if all stock has been sold.
+                    {
+                        // All stock has been sold. Reset the high purchase price.
+                        good.ppHigh = 0;
+                    }
+
+                    refreshStockTip = true;      // Purchased stock has changed.  Refresh stock tooltip.
+                    good.purStock   = purStock;  // Update purchased stock amount.
+                }
+
+                // Check if buildings have been bough or sold resulting in the purchaseable stock amount to change.
+                if (good.maxStock != maxStock)
+                {
+                    refreshStockTip = true;      // Maximum purchaseable stock has changed. Refresh stock tooltip. 
+                    good.maxStock   = maxStock;  // Update maximum purchaseable stock amount.
+                }
+                
+                // Check if stock cost has changed.
+                if (currCost != good.prevCost)
+                {
+                    refreshStockTip = true;  // Stock cost has changed. Refresh stock tooltip.               
+                    updateSave      = true;  // Update saved stock information.
+
+                    good.prevCost = good.cost;        // Update previous stock cost.                
+                    good.cost     = currCost;         // Update current stock cost.
+                    good.rawValues.push(good.cost);   // Store raw cost values.
+
+                    // Check if stock information has been previously sampled.
+                    if (good.samples)
+                    {
+                        // Calculate average cost.
+                        good.avgCost = calcRunningAvg(good.avgCost, good.cost, good.samples);
+
+                        // Calculate average low cost.
+                        if (good.cost < good.avgCost)
+                        {
+                            good.avgLow = calcRunningAvg(good.avgLow, good.cost, good.samplesLow++);
+                        }
+                        
+                        // Calculate average high cost.
+                        if (good.cost > good.avgCost)
+                        {
+                            good.avgHigh = calcRunningAvg(good.avgHigh, good.cost, good.samplesHigh++);
+                        }
+
+                        // Calculate low cost.
+                        if (good.cost < good.lowCost)
+                        {
+                            good.lowCost = good.cost;    
+                        }
+
+                        // Calculate high cost.
+                        if (good.cost > good.highCost)
+                        {
+                            good.highCost = good.cost;    
+                        }
+                    }
+                    else
+                    {
+                        // Initialize stock information.
+                        good.highCost = good.cost;
+                        good.avgHigh  = good.cost;
+                        good.avgCost  = good.cost;
+                        good.avgLow   = good.cost;                
+                        good.lowCost  = good.cost;
+                    }
+
+                    good.samples++;
+                }
+
+                // Update stock tip if the price has changed or if stock has been purchased or sold.
+                if (refreshStockTip)
+                {
+                    updateStockTip(i, purStock, maxStock, mode, dur);
+                }
+            }
+
+            if (updateSave)
+            {    
+            saveStockData();
+            }
         }
     }
-};
+}
+
 
 // Run stock market bot.
-stockBot = setInterval(logic, 1000);
-
-
+var stockBot = setInterval(logic, 1000);
